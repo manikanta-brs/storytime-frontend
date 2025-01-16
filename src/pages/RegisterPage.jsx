@@ -43,13 +43,16 @@ const RegisterPage = () => {
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(true);
     try {
-      const response = await registerAPI({
+      const resposnse = await registerAPI({
         first_name: values.first_name,
         last_name: values.last_name,
         email: values.email,
         password: values.password,
       });
-      console.log(response);
+      toast.success(resposnse.message);
+      resetForm();
+      setSubmitting(false);
+      navigate("/login");
     } catch (error) {
       console.error(error?.data?.message || error.error);
     }
