@@ -1,4 +1,6 @@
 // Navigation component
+import { useEffect } from "react";
+
 import { NavLink, useNavigate } from "react-router-dom";
 import "../App.css";
 import { logout } from "../store/user/authSlice";
@@ -8,11 +10,23 @@ const NavigationBar = () => {
   const { userData } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  // console.log(userData);
 
+  useEffect(() => {
+    const storedUserData = JSON.parse(localStorage.getItem("userData"));
+    if (storedUserData) {
+      // Dispatch action to set user data in Redux store
+      dispatch({ type: "auth/setUser", payload: storedUserData });
+    }
+  }, [dispatch]);
   const logoutHandler = () => {
     dispatch(logout());
+    localStorage.removeItem("userData"); // Clear user data from localStorage
+
     navigate("/login", { replace: true });
   };
+  const storedUserData =
+    userData || JSON.parse(localStorage.getItem("userData"));
   return (
     <nav className="bg-brandColor fixed w-full mt-0 top-0 z-10 px-5">
       <div className="container mx-auto">
@@ -118,7 +132,7 @@ const NavigationBar = () => {
               <li className="dropdown dropdown-6 relative">
                 {userData && (
                   <p className="text-white pr-2">
-                    Welcome back {userData.first_name}
+                    Welcome back {userData.firstname}
                   </p>
                 )}
                 <NavLink to="/profile" className="flex items-center">

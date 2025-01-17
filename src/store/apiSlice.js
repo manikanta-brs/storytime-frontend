@@ -4,8 +4,8 @@ const baseQuery = fetchBaseQuery({
   baseUrl: "http://localhost:5000",
   prepareHeaders: (headers, { getState }) => {
     const state = getState();
-
-    const token = state.auth.token;
+    console.log(state); // For debugging
+    const token = state.auth?.token;
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
     }
@@ -13,9 +13,30 @@ const baseQuery = fetchBaseQuery({
   },
 });
 
+// Base query handler to deal with 401 Unauthorized error (token expiration)
+const baseQueryWithHandler = async (args, api, extraOptions) => {
+  // Call the baseQuery
+  const result = await baseQuery(args, api, extraOptions);
+
+  // Handle unauthorized responses
+  if (result.error && result.error.status === 401) {
+    console.error("Unauthorized: Invalid or expired token.");
+    // Optionally, clear the token from the Redux state if needed
+    api.dispatch({ type: "auth/logout" }); // Dispatch a logout action (customize based on your state)
+    return {
+      error: {
+        status: 401,
+        message: "Unable to load data due to invalid or expired token.",
+      },
+    };
+  }
+
+  return result;
+};
+
 export const apiSlice = createApi({
   reducerPath: "storytime",
-  baseQuery,
+  baseQuery: baseQueryWithHandler, // Use baseQueryWithHandler for error handling
   tagTypes: ["User"],
   endpoints: (builder) => ({
     register: builder.mutation({
@@ -25,5 +46,16 @@ export const apiSlice = createApi({
         body: data,
       }),
     }),
+    // Example: You can add other endpoints as needed.
+    updateProfile: builder.mutation({
+      url: "/api/users/profile",
+      method: "POST",
+      query: (data) => ({
+        body: data,
+      }),
+    }),
+    // Any other API calls you might need
   }),
 });
+
+export default apiSlice;

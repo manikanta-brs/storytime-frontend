@@ -6,6 +6,8 @@ import * as Yup from "yup";
 import "react-responsive-modal/styles.css";
 import { useRegisterAPIMutation } from "../store/user/userApiSlice";
 import { toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const initialValues = {
   first_name: "",
   last_name: "",
@@ -40,21 +42,49 @@ const RegisterPage = () => {
   const [open, setOpen] = useState(false);
   const onOpenModal = () => setOpen(true);
   const onCloseModal = () => setOpen(false);
+  // const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+
+  //   setSubmitting(true);
+  //   try {
+  //     const response = await registerAPI({
+  //       first_name: values.first_name,
+  //       last_name: values.last_name,
+  //       email: values.email,
+  //       password: values.password,
+  //     });
+  //     toast.success(response?.data?.message || "Registration successful");
+  //     resetForm();
+  //     setSubmitting(false);
+  //     navigate("/login");
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error(
+  //       error?.data?.message || error.error || "Something went wrong!"
+  //     );
+  //   }
+  // };
+
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setSubmitting(true);
     try {
-      const resposnse = await registerAPI({
+      const response = await registerAPI({
         first_name: values.first_name,
         last_name: values.last_name,
         email: values.email,
         password: values.password,
-      });
-      toast.success(resposnse.message);
+      }).unwrap();
+      toast.success(
+        "Registration successful! A confirmation email has been sent."
+      );
       resetForm();
       setSubmitting(false);
       navigate("/login");
     } catch (error) {
-      console.error(error?.data?.message || error.error);
+      console.error(error);
+      toast.error(
+        error?.data?.message || error.error || "Something went wrong!"
+      );
+      setSubmitting(false);
     }
   };
 

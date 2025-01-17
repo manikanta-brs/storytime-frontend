@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../store/user/authSlice";
 import { useLoginAPIMutation } from "../store/user/userApiSlice";
+import { toast } from "react-toastify";
 
 const initialValues = {
   email: "",
@@ -24,7 +25,7 @@ const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoggedIn } = useSelector((state) => state.auth);
-  const [loginAPI, { isLoading }] = useLoginAPIMutation();
+  const [loginAPI] = useLoginAPIMutation();
   const [apiError, setApiError] = useState(""); // State to hold error messages
   const [showPassword, setShowPassword] = useState(true);
 
@@ -42,21 +43,31 @@ const LoginPage = () => {
     setSubmitting(true);
     setApiError(""); // Clear any previous error messages
     try {
+      // Make the login API call
       const response = await loginAPI({
         email: values.email,
         password: values.password,
       }).unwrap();
-      dispatch(login({ ...response }));
-      navigate("/home");
-    } catch (error) {
-      // Extract the error message from the response
-      if (error?.status === 404) {
-        setApiError(
-          error?.data?.message || "User not found. Please try again."
-        );
+
+      // If the response is a string (like 'Verification email sent')
+      if (typeof response === "string") {
+        toast.success(response); // Display the message
       } else {
-        setApiError("An unexpected error occurred. Please try again.");
+        // If it's a JSON object, handle it normally
+        toast.success("You logged in successfully");
+        dispatch(login({ ...response }));
+        navigate("/home");
+        resetForm(); // Reset form after successful login
       }
+    } catch (error) {
+      // Log the error for debugging
+      toast.warn(error);
+
+      // Handle any errors (API errors, unexpected responses)
+      toast.error(
+        error?.data?.message || error.error || "Something went wrong!"
+      );
+      resetForm(); // Optionally reset form on error (if needed)
     } finally {
       setSubmitting(false);
     }

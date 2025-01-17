@@ -1,9 +1,12 @@
 // import NavigationBar from "../components/NavigationBar.jsx";
+import { useDispatch } from "react-redux";
 import ImageBanner from "../components/home/ImageBanner.jsx";
 import PopularStories from "../components/home/PopularStories.jsx";
 import ShowsOfWeek from "../components/home/ShowsOfWeek.jsx";
 import TopStories from "../components/home/TopStories.jsx";
-
+import { setUserProfile } from "../store/user/authSlice.js";
+import { useGetUserProfileAPIQuery } from "../store/user/userApiSlice.js";
+import { useEffect } from "react";
 const showsOfWeeklist = [
   {
     id: 1,
@@ -119,6 +122,15 @@ const popularStoryList = [
   },
 ];
 const HomePage = () => {
+  const dispatch = useDispatch();
+  const { data } = useGetUserProfileAPIQuery();
+
+  useEffect(() => {
+    if (data) {
+      dispatch(setUserProfile({ ...data }));
+    }
+  }, [data, dispatch]);
+
   return (
     <>
       {/* <div className="container mx-auto p-2">

@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const userData = JSON.parse(localStorage.getItem("userdata")) || null;
+const userData = localStorage.getItem("userdata") || null;
 const token = JSON.parse(localStorage.getItem("token")) || null;
 const spotifyToken = JSON.parse(localStorage.getItem("spotifytoken")) || null;
 
@@ -8,7 +8,7 @@ const initialState = {
   token,
   spotifyToken,
   isLoggedIn: !!token,
-  userData,
+  userData: userData,
   isSidebarOpen: false,
   storyInfo: { name: null, id: null },
 };
@@ -26,6 +26,8 @@ const authSlice = createSlice({
         JSON.stringify(action.payload.spotifyToken.access_token)
       );
       state.isLoggedIn = true;
+      state.userData = action.payload;
+      localStorage.setItem("userData", JSON.stringify(action.payload)); // Save userData to localStorage
     },
     logout: (state, action) => {
       state.token = null;
@@ -37,11 +39,8 @@ const authSlice = createSlice({
       state.isLoggedIn = false;
     },
     setUserProfile: (state, action) => {
-      state.userData = action.payload.profileData;
-      localStorage.setItem(
-        "userdata",
-        JSON.stringify(action.payload.profileData)
-      );
+      state.userData = action.payload;
+      localStorage.setItem("userdata", JSON.stringify(action.payload));
     },
     updateUserProfile: (state, action) => {
       state.userData = { ...userData, ...action.payload };
