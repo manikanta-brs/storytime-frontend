@@ -11,14 +11,19 @@ const NavigationBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   // console.log(userData);
-
   useEffect(() => {
-    const storedUserData = JSON.parse(localStorage.getItem("userData"));
-    if (storedUserData) {
-      // Dispatch action to set user data in Redux store
-      dispatch({ type: "auth/setUser", payload: storedUserData });
+    if (userData) {
+      dispatch({ type: "auth/setUserProfile", payload: userData });
     }
-  }, [dispatch]);
+  }, [dispatch, userData]);
+
+  // useEffect(() => {
+  //   const storedUserData = JSON.parse(localStorage.getItem("userData"));
+  //   if (storedUserData) {
+  //     // Dispatch action to set user data in Redux store
+  //     dispatch({ type: "auth/setUser", payload: storedUserData });
+  //   }
+  // }, [dispatch]);
   const logoutHandler = () => {
     dispatch(logout());
     localStorage.removeItem("userData"); // Clear user data from localStorage

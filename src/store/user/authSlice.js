@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-const userData = localStorage.getItem("userdata") || null;
+const userData = JSON.parse(localStorage.getItem("userdata")) || null;
 const token = JSON.parse(localStorage.getItem("token")) || null;
 const spotifyToken = JSON.parse(localStorage.getItem("spotifytoken")) || null;
 
@@ -43,9 +43,10 @@ const authSlice = createSlice({
       localStorage.setItem("userdata", JSON.stringify(action.payload));
     },
     updateUserProfile: (state, action) => {
-      state.userData = { ...userData, ...action.payload };
+      state.userData = { ...state.userData, ...action.payload };
       localStorage.setItem("userdata", JSON.stringify(state.userData));
     },
+
     toggleLanguageSelection: (state, action) => {
       const langugageId = action.payload;
       const index = state.userData.languages.indexOf(langugageId);
